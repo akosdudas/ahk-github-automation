@@ -15,12 +15,6 @@ namespace Ahk.GitHub.Monitor
             [HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = null)] HttpRequest request,
             ILogger logger)
         {
-            var githubToken = Environment.GetEnvironmentVariable("AHK_GITHUB_TOKEN", EnvironmentVariableTarget.Process);
-            if (string.IsNullOrEmpty(githubToken))
-            {
-                return new ObjectResult(new { error = "GitHub access token not configured" }) { StatusCode = StatusCodes.Status500InternalServerError };
-            }
-
             var githubSecret = Environment.GetEnvironmentVariable("AHK_GITHUB_SECRET", EnvironmentVariableTarget.Process);
             if (string.IsNullOrEmpty(githubSecret))
             {
@@ -43,7 +37,7 @@ namespace Ahk.GitHub.Monitor
                 var webhookResult = new WebhookResult();
                 try
                 {
-                    var gitHubClient = GitHubClientHelper.CreateGitHubClient(githubToken);
+                    var gitHubClient = await GitHubClientHelper.CreateGitHubClient();
                     string requestBody = payload.ReadAsString();
                     switch (eventName)
                     {
