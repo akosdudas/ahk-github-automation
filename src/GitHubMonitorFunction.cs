@@ -22,7 +22,6 @@ namespace Ahk.GitHub.Monitor
             }
 
             if (string.IsNullOrEmpty(Environment.GetEnvironmentVariable("AHK_GITHUB_APP_PRIVATE_KEY", EnvironmentVariableTarget.Process))
-                || string.IsNullOrEmpty(Environment.GetEnvironmentVariable("AHK_GITHUB_APP_INSTALLATION_ID", EnvironmentVariableTarget.Process))
                 || string.IsNullOrEmpty(Environment.GetEnvironmentVariable("AHK_GITHUB_APP_ID", EnvironmentVariableTarget.Process)))
             {
                 return new ObjectResult(new { error = "GitHub App ID/Token not configured" }) { StatusCode = StatusCodes.Status500InternalServerError };
@@ -44,18 +43,17 @@ namespace Ahk.GitHub.Monitor
                 var webhookResult = new WebhookResult();
                 try
                 {
-                    var gitHubClient = await GitHubClientHelper.CreateGitHubClient();
                     string requestBody = payload.ReadAsString();
                     switch (eventName)
                     {
                         case EventHandlers.BranchCreatedEventHandler.GitHubWebhookEventName:
-                            await new EventHandlers.BranchCreatedEventHandler(gitHubClient).Execute(requestBody, webhookResult);
+                            await new EventHandlers.BranchCreatedEventHandler().Execute(requestBody, webhookResult);
                             break;
                         case EventHandlers.IssueCommentEventHandler.GitHubWebhookEventName:
-                            await new EventHandlers.IssueCommentEventHandler(gitHubClient).Execute(requestBody, webhookResult);
+                            await new EventHandlers.IssueCommentEventHandler().Execute(requestBody, webhookResult);
                             break;
                         case EventHandlers.PullRequestEventHandler.GitHubWebhookEventName:
-                            await new EventHandlers.PullRequestEventHandler(gitHubClient).Execute(requestBody, webhookResult);
+                            await new EventHandlers.PullRequestEventHandler().Execute(requestBody, webhookResult);
                             break;
                         default:
                             webhookResult.LogInfo($"Event {eventName} is not of interrest");
