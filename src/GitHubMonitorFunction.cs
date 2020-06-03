@@ -21,6 +21,13 @@ namespace Ahk.GitHub.Monitor
                 return new ObjectResult(new { error = "GitHub secret not configured" }) { StatusCode = StatusCodes.Status500InternalServerError };
             }
 
+            if (string.IsNullOrEmpty(Environment.GetEnvironmentVariable("AHK_GITHUB_APP_PRIVATE_KEY", EnvironmentVariableTarget.Process))
+                || string.IsNullOrEmpty(Environment.GetEnvironmentVariable("AHK_GITHUB_APP_INSTALLATION_ID", EnvironmentVariableTarget.Process))
+                || string.IsNullOrEmpty(Environment.GetEnvironmentVariable("AHK_GITHUB_APP_ID", EnvironmentVariableTarget.Process)))
+            {
+                return new ObjectResult(new { error = "GitHub App ID/Token not configured" }) { StatusCode = StatusCodes.Status500InternalServerError };
+            }
+
             string eventName = request.Headers.GetValueOrDefault("X-GitHub-Event");
             string deliveryId = request.Headers.GetValueOrDefault("X-GitHub-Delivery");
             string receivedSignature = request.Headers.GetValueOrDefault("X-Hub-Signature");
