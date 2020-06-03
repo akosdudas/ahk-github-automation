@@ -1,11 +1,12 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.IO;
 using System.Security.Cryptography;
-using System.Text;
 
 namespace Ahk.GitHub.Monitor.Helpers
 {
+    /// <summary>
+    /// Based on https://thomaslevesque.com/2018/03/30/writing-a-github-webhook-as-an-azure-function/
+    /// </summary>
     static class CryptoHelper
     {
         public static RSAParameters GetRsaParameters(string privateKeyBase64)
