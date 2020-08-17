@@ -1,9 +1,6 @@
 name: Azure publish
 
-on:
-  push:
-    branches:
-      - master
+on: [push]
 
 jobs:
   publish:
