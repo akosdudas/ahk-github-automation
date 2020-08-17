@@ -1,6 +1,6 @@
 # Ahk GitHub monitor
 
-This is an GitHub App hosted as an Azure Function processing GitHub webhooks. The purpose is to monitor GitHub repositories of student homework assignments for conformance with the expected workflow.
+A GitHub App hosted as an Azure Function processing GitHub webhooks. The purpose is to monitor GitHub repositories of student homework assignments for conformance with the expected workflow.
 
 The basis of operation is
 
