@@ -32,7 +32,7 @@ namespace Ahk.GitHub.Monitor.EventHandlers
 
             if (!repoSettings.Enabled)
             {
-                webhookResult.LogInfo($"repository {webhookPayload.Repository.FullName} disabled me");
+                webhookResult.LogInfo($"ahk-monitor.yml disabled app for repository {webhookPayload.Repository.FullName}");
                 return;
             }
 
@@ -90,7 +90,7 @@ namespace Ahk.GitHub.Monitor.EventHandlers
 
                 if (settingsString == null)
                 {
-                    webhookResult.LogInfo($"repository {webhookPayload.Repository.FullName} has no ahk.yml");
+                    webhookResult.LogInfo($"repository {webhookPayload.Repository.FullName} has no ahk-monitor.yml");
                     return null;
                 }
 
@@ -98,7 +98,7 @@ namespace Ahk.GitHub.Monitor.EventHandlers
             }
             catch (NotFoundException)
             {
-                webhookResult.LogInfo($"repository {webhookPayload.Repository.FullName} has no ahk.yml");
+                webhookResult.LogInfo($"repository {webhookPayload.Repository.FullName} has no ahk-monitor.yml");
                 return null;
             }
         }
