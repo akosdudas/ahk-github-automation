@@ -7,12 +7,13 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Ahk.GitHub.Monitor", "Ahk.G
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{43C4E2A6-8723-4E33-B420-89947060BD0E}"
 	ProjectSection(SolutionItems) = preProject
-		..\.github\workflows\azure-publish.yaml = ..\.github\workflows\azure-publish.yaml
+		..\.github\workflows\azure-publish-prod.yaml = ..\.github\workflows\azure-publish-prod.yaml
+		..\.github\workflows\azure-publish-staging.yaml = ..\.github\workflows\azure-publish-staging.yaml
 		..\.github\workflows\build.yaml = ..\.github\workflows\build.yaml
 		..\README.md = ..\README.md
 	EndProjectSection
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Ahk.GitHub.Monitor.Tests", "Ahk.GitHub.Monitor.Tests\Ahk.GitHub.Monitor.Tests.csproj", "{830DD0E6-88D5-47B3-86B4-EDDD227C2A0D}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Ahk.GitHub.Monitor.Tests", "Ahk.GitHub.Monitor.Tests\Ahk.GitHub.Monitor.Tests.csproj", "{830DD0E6-88D5-47B3-86B4-EDDD227C2A0D}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
