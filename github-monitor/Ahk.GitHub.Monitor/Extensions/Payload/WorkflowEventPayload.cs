@@ -1,12 +1,4 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Ahk.GitHub.Monitor.EventHandlers.Lifecycle.Response;
-using Octokit;
-
-namespace Ahk.GitHub.Monitor.EventHandlers.Lifecycle.Payload
+namespace Octokit
 {
     public class WorkflowEventPayload : ActivityPayload
     {

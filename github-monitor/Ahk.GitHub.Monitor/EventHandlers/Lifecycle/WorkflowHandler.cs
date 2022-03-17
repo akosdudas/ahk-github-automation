@@ -1,22 +1,37 @@
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
-using Ahk.GitHub.Monitor.EventHandlers.Lifecycle.Payload;
+using Octokit;
 using Ahk.GitHub.Monitor.Services;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Logging;
 
-namespace Ahk.GitHub.Monitor.EventHandlers.Lifecycle
+namespace Ahk.GitHub.Monitor.EventHandlers
 {
     public class WorkflowHandler : RepositoryEventBase<WorkflowEventPayload>
     {
+        public const string GitHubWebhookEventName = "workflow_run";
         public WorkflowHandler(IGitHubClientFactory gitHubClientFactory, IMemoryCache cache, ILogger logger)
             : base(gitHubClientFactory, cache, logger)
         {
         }
 
-        protected override Task<EventHandlerResult> executeCore(WorkflowEventPayload webhookPayload) => throw new NotImplementedException();
+        protected override async Task<EventHandlerResult> executeCore(WorkflowEventPayload webhookPayload)
+        {
+            if (webhookPayload.Repository == null)
+                return EventHandlerResult.PayloadError("no repository information in webhook payload");
+
+            if (webhookPayload.WorkflowRun == null)
+                return EventHandlerResult.PayloadError("no workflow run information in webhook payload");
+
+            if (webhookPayload.Action.Equals("completed", StringComparison.OrdinalIgnoreCase))
+                return await processWorkflowRunEvent(webhookPayload);
+
+            return EventHandlerResult.EventNotOfInterest(webhookPayload.Action);
+        }
+
+        private async Task<EventHandlerResult> processWorkflowRunEvent(WorkflowEventPayload webhookPayload)
+        {
+
+        }
     }
 }
