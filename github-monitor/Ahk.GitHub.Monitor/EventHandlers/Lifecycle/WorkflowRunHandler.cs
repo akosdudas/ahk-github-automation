@@ -7,10 +7,10 @@ using Microsoft.Extensions.Logging;
 
 namespace Ahk.GitHub.Monitor.EventHandlers
 {
-    public class WorkflowHandler : RepositoryEventBase<WorkflowEventPayload>
+    public class WorkflowRunHandler : RepositoryEventBase<WorkflowEventPayload>
     {
         public const string GitHubWebhookEventName = "workflow_run";
-        public WorkflowHandler(IGitHubClientFactory gitHubClientFactory, IMemoryCache cache, ILogger logger)
+        public WorkflowRunHandler(IGitHubClientFactory gitHubClientFactory, IMemoryCache cache, ILogger logger)
             : base(gitHubClientFactory, cache, logger)
         {
         }
