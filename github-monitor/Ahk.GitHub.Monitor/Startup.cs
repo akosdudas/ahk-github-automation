@@ -36,7 +36,11 @@ namespace Ahk.GitHub.Monitor
                 .Add<EventHandlers.PullRequestReviewToAssigneeHandler>(EventHandlers.PullRequestReviewToAssigneeHandler.GitHubWebhookEventName)
                 .Add<EventHandlers.GradeCommandIssueCommentHandler>(EventHandlers.GradeCommandIssueCommentHandler.GitHubWebhookEventName)
                 .Add<EventHandlers.GradeCommandReviewCommentHandler>(EventHandlers.GradeCommandReviewCommentHandler.GitHubWebhookEventName)
-                .Add<EventHandlers.ActionWorkflowRunHandler>(EventHandlers.ActionWorkflowRunHandler.GitHubWebhookEventName);
+                .Add<EventHandlers.ActionWorkflowRunHandler>(EventHandlers.ActionWorkflowRunHandler.GitHubWebhookEventName)
+                .Add<EventHandlers.RepositoryCreateHandler>(EventHandlers.RepositoryCreateHandler.GitHubWebhookEventName)
+                .Add<EventHandlers.BranchCreateHandler>(EventHandlers.BranchCreateHandler.GitHubWebhookEventName)
+                .Add<EventHandlers.WorkflowRunHandler>(EventHandlers.WorkflowRunHandler.GitHubWebhookEventName)
+                .Add<EventHandlers.PullRequestHandler>(EventHandlers.PullRequestHandler.GitHubWebhookEventName);
         }
 
         private static void addGradeStoreIntegration(IFunctionsHostBuilder builder, IConfigurationRoot configuration)
