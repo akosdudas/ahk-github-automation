@@ -24,7 +24,7 @@ namespace Ahk.GitHub.Monitor
             var configuration = new ConfigurationBuilder().AddEnvironmentVariables("AHK_").Build();
             builder.Services.Configure<GitHubMonitorConfig>(configuration);
 
-            addGradeStoreIntegration(builder, configuration);
+            addAzureQueueIntegration(builder, configuration);
         }
 
         private static Services.EventDispatchConfigBuilder registerEventHandlers(IServiceCollection services)
@@ -43,13 +43,14 @@ namespace Ahk.GitHub.Monitor
                 .Add<EventHandlers.PullRequestHandler>(EventHandlers.PullRequestHandler.GitHubWebhookEventName);
         }
 
-        private static void addGradeStoreIntegration(IFunctionsHostBuilder builder, IConfigurationRoot configuration)
+        private static void addAzureQueueIntegration(IFunctionsHostBuilder builder, IConfigurationRoot configuration)
         {
             var config = configuration.Get<GitHubMonitorConfig>();
 
             if (!string.IsNullOrEmpty(config?.EventsQueueConnectionString))
             {
                 builder.Services.AddSingleton<Services.IGradeStore, Services.GradeStoreAzureQueue>();
+                builder.Services.AddSingleton<Services.ILifecycleStore, Services.LifecycleStoreAzureQueue>();
                 builder.Services.AddAzureClients(az =>
                 {
                     az.ConfigureDefaults(opts => opts.Diagnostics.IsLoggingEnabled = false);
@@ -67,6 +68,7 @@ namespace Ahk.GitHub.Monitor
             else
             {
                 builder.Services.AddSingleton<Services.IGradeStore, Services.GradeStoreNoop>();
+                builder.Services.AddSingleton<Services.ILifecycleStore, Services.LifecycleStoreNoop>();
             }
         }
     }
