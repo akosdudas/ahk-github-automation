@@ -10,9 +10,12 @@ namespace Ahk.GitHub.Monitor.EventHandlers
     public class PullRequestHandler : RepositoryEventBase<PullRequestEventPayload>
     {
         public const string GitHubWebhookEventName = "pull_request";
-        public PullRequestHandler(IGitHubClientFactory gitHubClientFactory, IMemoryCache cache, ILogger logger)
+        private readonly ILifecycleStore lifecycleStore;
+
+        public PullRequestHandler(IGitHubClientFactory gitHubClientFactory, ILifecycleStore lifecycleStore, IMemoryCache cache, ILogger logger)
             : base(gitHubClientFactory, cache, logger)
         {
+            this.lifecycleStore = lifecycleStore;
         }
 
         protected override async Task<EventHandlerResult> executeCore(PullRequestEventPayload webhookPayload)
@@ -34,7 +37,20 @@ namespace Ahk.GitHub.Monitor.EventHandlers
 
         private async Task<EventHandlerResult> processPullRequestEvent(PullRequestEventPayload webhookPayload)
         {
+            string repository = webhookPayload.Repository.FullName;
+            string username = webhookPayload.Repository.FullName.Split("-")[^1];
+            string action = webhookPayload.Action;
+            string assignee = webhookPayload.PullRequest.Assignee.ToString();
+            string neptun = await getNeptun(webhookPayload.Repository.Id, webhookPayload.PullRequest.Head.Ref);
 
+            await lifecycleStore.StorePullRequestEvent(
+                repository: repository,
+                username: username,
+                action: action,
+                assignee: assignee,
+                neptun: neptun);
+
+            return EventHandlerResult.ActionPerformed("pull request operation done");
         }
     }
 }

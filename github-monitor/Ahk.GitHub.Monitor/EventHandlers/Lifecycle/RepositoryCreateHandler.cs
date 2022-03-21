@@ -1,5 +1,8 @@
 using System;
 using System.Threading.Tasks;
+using Ahk.GitHub.Monitor.Services;
+using Microsoft.Extensions.Caching.Memory;
+using Microsoft.Extensions.Logging;
 using Octokit;
 
 namespace Ahk.GitHub.Monitor.EventHandlers
@@ -7,10 +10,12 @@ namespace Ahk.GitHub.Monitor.EventHandlers
     public class RepositoryCreateHandler : RepositoryEventBase<RepositoryEventPayload>
     {
         public const string GitHubWebhookEventName = "repository";
+        private readonly ILifecycleStore lifecycleStore;
 
-        public RepositoryCreateHandler(Services.IGitHubClientFactory gitHubClientFactory, Microsoft.Extensions.Caching.Memory.IMemoryCache cache, Microsoft.Extensions.Logging.ILogger logger)
+        public RepositoryCreateHandler(IGitHubClientFactory gitHubClientFactory, ILifecycleStore lifecycleStore, IMemoryCache cache, ILogger logger)
             : base(gitHubClientFactory, cache, logger)
         {
+            this.lifecycleStore = lifecycleStore;
         }
 
         protected override async Task<EventHandlerResult> executeCore(RepositoryEventPayload webhookPayload)
@@ -26,7 +31,14 @@ namespace Ahk.GitHub.Monitor.EventHandlers
 
         private async Task<EventHandlerResult> processRepositoryCreateEvent(RepositoryEventPayload webhookPayload)
         {
+            string repository = webhookPayload.Repository.FullName;
+            string username = webhookPayload.Repository.FullName.Split("-")[^1];
 
+            await lifecycleStore.StoreRepositoryCreateEvent(
+                repository: repository,
+                username: username);
+
+            return EventHandlerResult.ActionPerformed("repository create operation done");
         }
     }
 }

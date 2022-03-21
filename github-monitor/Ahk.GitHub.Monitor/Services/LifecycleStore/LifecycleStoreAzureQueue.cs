@@ -4,7 +4,7 @@ using Microsoft.Extensions.Azure;
 
 namespace Ahk.GitHub.Monitor.Services
 {
-    public class LifecycleStoreAzureQueue : ILifecycleStore
+    internal class LifecycleStoreAzureQueue : ILifecycleStore
     {
         public const string QueueClientName = "ahkevents";
         public const string QueueNameRepositoryCreate = "ahk-repository-create";

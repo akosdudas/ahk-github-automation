@@ -10,9 +10,12 @@ namespace Ahk.GitHub.Monitor.EventHandlers
     public class WorkflowRunHandler : RepositoryEventBase<WorkflowEventPayload>
     {
         public const string GitHubWebhookEventName = "workflow_run";
-        public WorkflowRunHandler(IGitHubClientFactory gitHubClientFactory, IMemoryCache cache, ILogger logger)
+        private readonly ILifecycleStore lifecycleStore;
+
+        public WorkflowRunHandler(IGitHubClientFactory gitHubClientFactory, ILifecycleStore lifecycleStore, IMemoryCache cache, ILogger logger)
             : base(gitHubClientFactory, cache, logger)
         {
+            this.lifecycleStore = lifecycleStore;
         }
 
         protected override async Task<EventHandlerResult> executeCore(WorkflowEventPayload webhookPayload)
@@ -31,7 +34,16 @@ namespace Ahk.GitHub.Monitor.EventHandlers
 
         private async Task<EventHandlerResult> processWorkflowRunEvent(WorkflowEventPayload webhookPayload)
         {
+            string repository = webhookPayload.Repository.FullName;
+            string username = webhookPayload.Repository.FullName.Split("-")[^1];
+            string conclusion = webhookPayload.WorkflowRun.Conclusion;
 
+            await lifecycleStore.StoreWorkflowRunEvent(
+                repository: repository,
+                username: username,
+                conclusion: conclusion);
+
+            return EventHandlerResult.ActionPerformed("workflow_run operation done");
         }
     }
 }
