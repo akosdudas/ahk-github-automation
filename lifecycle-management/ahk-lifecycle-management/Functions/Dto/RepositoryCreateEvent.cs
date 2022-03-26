@@ -8,7 +8,7 @@ namespace Ahk.Lifecycle.Management
             this.Username = username;
         }
 
-        public string Repository { get; protected set; }
-        public string Username { get; protected set; }
+        public string Repository { get; }
+        public string Username { get; }
     }
 }

@@ -23,7 +23,7 @@ namespace Ahk.GitHub.Monitor.EventHandlers
             if (webhookPayload.Repository == null)
                 return EventHandlerResult.PayloadError("no repository information in webhook payload");
 
-            if (webhookPayload.RefType.Equals(RefType.Branch) && !webhookPayload.Ref.Equals("master", StringComparison.OrdinalIgnoreCase) && !webhookPayload.Ref.Equals("main", StringComparison.OrdinalIgnoreCase))
+            if (webhookPayload.RefType.Equals(RefType.Branch) && !webhookPayload.Ref.Equals(webhookPayload.Repository.DefaultBranch, StringComparison.OrdinalIgnoreCase))
                 return await processBranchCreateEvent(webhookPayload);
 
             return EventHandlerResult.EventNotOfInterest(webhookPayload.RefType.ToString());

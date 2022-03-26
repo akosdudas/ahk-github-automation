@@ -9,8 +9,8 @@ namespace Ahk.Lifecycle.Management
             this.Branch = branch;
         }
 
-        public string Repository { get; protected set; }
-        public string Username { get; protected set; }
-        public string Branch { get; protected set; }
+        public string Repository { get; }
+        public string Username { get; }
+        public string Branch { get; }
     }
 }

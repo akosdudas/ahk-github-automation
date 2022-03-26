@@ -9,10 +9,10 @@ namespace Ahk.Lifecycle.Management
             this.Conclusion = conclusion;
         }
 
-        public string Repository { get; protected set; }
-        public string Username { get; protected set; }
+        public string Repository { get; }
+        public string Username { get; }
 
         // neutral, success, skipped, cancelled, timed_out, action_required, failure
-        public string Conclusion { get; protected set; }
+        public string Conclusion { get; }
     }
 }

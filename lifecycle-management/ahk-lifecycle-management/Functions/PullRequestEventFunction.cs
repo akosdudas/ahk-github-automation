@@ -7,7 +7,7 @@ namespace Ahk.Lifecycle.Management
     public static class PullRequestEventFunction
     {
         [FunctionName("PullRequestEventFunction")]
-        public static void Run([ServiceBusTrigger("ahk-pull-request", Connection = "AHK_EventsQueueConnectionString")]PullRequestEvent data, ILogger log)
+        public static void Run([QueueTrigger("ahk-pull-request", Connection = "AHK_EventsQueueConnectionString")]PullRequestEvent data, ILogger log)
         {
             log.LogInformation($"PullRequestEventFunction for {data}");
         }

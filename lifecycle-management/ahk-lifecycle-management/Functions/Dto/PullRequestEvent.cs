@@ -11,10 +11,10 @@ namespace Ahk.Lifecycle.Management
             this.Neptun = neptun;
         }
 
-        public string Repository { get; protected set; }
-        public string Username { get; protected set; }
-        public string Action { get; protected set; }
-        public string Assignee { get; protected set; }
-        public string Neptun { get; protected set; }
+        public string Repository { get; }
+        public string Username { get; }
+        public string Action { get; }
+        public string Assignee { get; }
+        public string Neptun { get; }
     }
 }
