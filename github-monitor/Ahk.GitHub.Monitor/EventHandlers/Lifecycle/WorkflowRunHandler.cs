@@ -38,10 +38,11 @@ namespace Ahk.GitHub.Monitor.EventHandlers
             string username = webhookPayload.Repository.FullName.Split("-")[^1];
             string conclusion = webhookPayload.WorkflowRun.Conclusion;
 
-            await lifecycleStore.StoreWorkflowRunEvent(
+            await lifecycleStore.StoreEvent(new WorkflowRunEvent(
                 repository: repository,
                 username: username,
-                conclusion: conclusion);
+                timestamp: DateTime.UtcNow,
+                conclusion: conclusion));
 
             return EventHandlerResult.ActionPerformed("workflow_run operation done");
         }

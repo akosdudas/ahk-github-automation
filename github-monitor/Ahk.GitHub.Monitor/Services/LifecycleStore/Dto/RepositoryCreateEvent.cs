@@ -1,14 +1,12 @@
+using System;
+
 namespace Ahk.GitHub.Monitor.Services
 {
-    public class RepositoryCreateEvent
+    public class RepositoryCreateEvent : LifecycleEvent
     {
-        public RepositoryCreateEvent(string repository, string username)
+        public RepositoryCreateEvent(string repository, string username, DateTime timestamp)
+            : base(repository, username, timestamp)
         {
-            this.Repository = repository;
-            this.Username = username;
         }
-
-        public string Repository { get; }
-        public string Username { get; }
     }
 }

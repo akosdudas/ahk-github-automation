@@ -26,7 +26,7 @@ namespace Ahk.GitHub.Monitor.EventHandlers
             if (webhookPayload.RefType.Equals(RefType.Branch) && !webhookPayload.Ref.Equals(webhookPayload.Repository.DefaultBranch, StringComparison.OrdinalIgnoreCase))
                 return await processBranchCreateEvent(webhookPayload);
 
-            return EventHandlerResult.EventNotOfInterest(webhookPayload.RefType.ToString());
+            return EventHandlerResult.EventNotOfInterest($"RefType: {webhookPayload.RefType}, Ref: {webhookPayload.Ref}");
         }
 
         private async Task<EventHandlerResult> processBranchCreateEvent(CreateEventPayload webhookPayload)
@@ -35,10 +35,11 @@ namespace Ahk.GitHub.Monitor.EventHandlers
             string username = webhookPayload.Repository.FullName.Split("-")[^1];
             string branch = webhookPayload.Ref;
 
-            await lifecycleStore.StoreBranchCreateEvent(
+            await lifecycleStore.StoreEvent(new BranchCreateEvent(
                 repository: repository,
                 username: username,
-                branch: branch);
+                timestamp: DateTime.UtcNow,
+                branch: branch));
 
             return EventHandlerResult.ActionPerformed("branch create operation done");
         }

@@ -1,20 +1,19 @@
+using System;
+
 namespace Ahk.GitHub.Monitor.Services
 {
-    public class PullRequestEvent
+    public class PullRequestEvent : LifecycleEvent
     {
-        public PullRequestEvent(string repository, string username, string action, string assignee, string neptun)
+        public PullRequestEvent(string repository, string username, DateTime timestamp, string action, string[] assignees, string neptun)
+            : base(repository, username, timestamp)
         {
-            this.Repository = repository;
-            this.Username = username;
             this.Action = action;
-            this.Assignee = assignee;
+            this.Assignees = assignees;
             this.Neptun = neptun;
         }
 
-        public string Repository { get; }
-        public string Username { get; }
         public string Action { get; }
-        public string Assignee { get; }
+        public string[] Assignees { get; }
         public string Neptun { get; }
     }
 }

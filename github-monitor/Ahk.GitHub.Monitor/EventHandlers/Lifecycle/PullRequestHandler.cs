@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using Ahk.GitHub.Monitor.Services;
 using Microsoft.Extensions.Caching.Memory;
@@ -28,11 +29,24 @@ namespace Ahk.GitHub.Monitor.EventHandlers
 
             if (webhookPayload.Action.Equals("opened", StringComparison.OrdinalIgnoreCase) ||
                 webhookPayload.Action.Equals("assigned", StringComparison.OrdinalIgnoreCase) ||
-                webhookPayload.Action.Equals("review_assigned", StringComparison.OrdinalIgnoreCase) ||
+                webhookPayload.Action.Equals("review_requested", StringComparison.OrdinalIgnoreCase) ||
                 webhookPayload.Action.Equals("closed", StringComparison.OrdinalIgnoreCase))
                 return await processPullRequestEvent(webhookPayload);
 
             return EventHandlerResult.EventNotOfInterest(webhookPayload.Action);
+        }
+
+        private static string[] getAssignees(IReadOnlyList<User> list)
+        {
+            if (list.Count == 0)
+                return null;
+
+            var assignees = new string[list.Count];
+
+            for (int i = 0; i < list.Count; i++)
+                assignees[i] = list[i].Login;
+
+            return assignees;
         }
 
         private async Task<EventHandlerResult> processPullRequestEvent(PullRequestEventPayload webhookPayload)
@@ -40,15 +54,16 @@ namespace Ahk.GitHub.Monitor.EventHandlers
             string repository = webhookPayload.Repository.FullName;
             string username = webhookPayload.Repository.FullName.Split("-")[^1];
             string action = webhookPayload.Action;
-            string assignee = webhookPayload.PullRequest.Assignee.ToString();
+            string[] assignees = getAssignees(webhookPayload.PullRequest.Assignees);
             string neptun = await getNeptun(webhookPayload.Repository.Id, webhookPayload.PullRequest.Head.Ref);
 
-            await lifecycleStore.StorePullRequestEvent(
+            await lifecycleStore.StoreEvent(new PullRequestEvent(
                 repository: repository,
                 username: username,
+                timestamp: DateTime.UtcNow,
                 action: action,
-                assignee: assignee,
-                neptun: neptun);
+                assignees: assignees,
+                neptun: neptun));
 
             return EventHandlerResult.ActionPerformed("pull request operation done");
         }

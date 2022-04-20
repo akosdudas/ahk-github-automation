@@ -1,18 +1,15 @@
+using System;
+
 namespace Ahk.GitHub.Monitor.Services
 {
-    public class WorkflowRunEvent
+    public class WorkflowRunEvent : LifecycleEvent
     {
-        public WorkflowRunEvent(string repository, string username, string conclusion)
+        public WorkflowRunEvent(string repository, string username, DateTime timestamp, string conclusion)
+            : base(repository, username, timestamp)
         {
-            this.Repository = repository;
-            this.Username = username;
             this.Conclusion = conclusion;
         }
 
-        public string Repository { get; }
-        public string Username { get; }
-
-        // neutral, success, skipped, cancelled, timed_out, action_required, failure
         public string Conclusion { get; }
     }
 }

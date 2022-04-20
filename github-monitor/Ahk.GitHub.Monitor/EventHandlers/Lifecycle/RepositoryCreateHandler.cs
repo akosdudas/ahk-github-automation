@@ -34,9 +34,10 @@ namespace Ahk.GitHub.Monitor.EventHandlers
             string repository = webhookPayload.Repository.FullName;
             string username = webhookPayload.Repository.FullName.Split("-")[^1];
 
-            await lifecycleStore.StoreRepositoryCreateEvent(
+            await lifecycleStore.StoreEvent(new RepositoryCreateEvent(
                 repository: repository,
-                username: username);
+                username: username,
+                timestamp: DateTime.UtcNow));
 
             return EventHandlerResult.ActionPerformed("repository create operation done");
         }
