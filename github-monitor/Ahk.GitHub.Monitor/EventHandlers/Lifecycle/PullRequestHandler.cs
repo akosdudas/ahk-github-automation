@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using Ahk.GitHub.Monitor.Services;
 using Microsoft.Extensions.Caching.Memory;
@@ -36,25 +37,12 @@ namespace Ahk.GitHub.Monitor.EventHandlers
             return EventHandlerResult.EventNotOfInterest(webhookPayload.Action);
         }
 
-        private static string[] getAssignees(IReadOnlyList<User> list)
-        {
-            if (list.Count == 0)
-                return null;
-
-            var assignees = new string[list.Count];
-
-            for (int i = 0; i < list.Count; i++)
-                assignees[i] = list[i].Login;
-
-            return assignees;
-        }
-
         private async Task<EventHandlerResult> processPullRequestEvent(PullRequestEventPayload webhookPayload)
         {
             string repository = webhookPayload.Repository.FullName;
             string username = webhookPayload.Repository.FullName.Split("-")[^1];
             string action = webhookPayload.Action;
-            string[] assignees = getAssignees(webhookPayload.PullRequest.Assignees);
+            string[] assignees = webhookPayload.PullRequest.Assignees?.Select(u => u.Login)?.ToArray();
             string neptun = await getNeptun(webhookPayload.Repository.Id, webhookPayload.PullRequest.Head.Ref);
 
             await lifecycleStore.StoreEvent(new PullRequestEvent(
