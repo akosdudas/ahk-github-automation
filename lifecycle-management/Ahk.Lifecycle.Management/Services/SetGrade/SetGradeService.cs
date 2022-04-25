@@ -1,12 +1,14 @@
 using System.Threading.Tasks;
+using Ahk.Lifecycle.Management.DAL;
+using Ahk.Lifecycle.Management.DAL.Entities;
 
 namespace Ahk.Lifecycle.Management
 {
     public class SetGradeService : ISetGradeService
     {
-        private readonly IRepository _repo;
+        private readonly IRepository repo;
 
-        public SetGradeService(IRepository repo) => _repo = repo;
-        public Task SetGrade(SetGradeEvent data) => _repo.Insert(data);
+        public SetGradeService(IRepository repo) => this.repo = repo;
+        public Task SetGrade(SetGradeEvent data) => repo.Insert(data);
     }
 }

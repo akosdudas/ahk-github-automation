@@ -1,14 +1,16 @@
 using System;
 using System.Threading.Tasks;
+using Ahk.Lifecycle.Management.DAL;
+using Ahk.Lifecycle.Management.DAL.Entities;
 
 namespace Ahk.Lifecycle.Management
 {
     public class WorkflowRunService : IWorkflowRunService
     {
-        private readonly IRepository _repo;
+        private readonly IRepository repo;
 
-        public WorkflowRunService(IRepository repo) => _repo = repo;
+        public WorkflowRunService(IRepository repo) => this.repo = repo;
 
-        public Task WorkflowRun(WorkflowRunEvent data) => _repo.Insert(data);
+        public Task WorkflowRun(WorkflowRunEvent data) => repo.Insert(data);
     }
 }

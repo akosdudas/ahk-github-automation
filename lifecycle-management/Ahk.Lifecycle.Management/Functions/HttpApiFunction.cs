@@ -9,27 +9,27 @@ namespace Ahk.Lifecycle.Management
 {
     public class HttpApiFunction
     {
-        private readonly IHttpApiService _service;
+        private readonly IHttpApiService service;
 
-        public HttpApiFunction(IHttpApiService service) => _service = service;
+        public HttpApiFunction(IHttpApiService service) => this.service = service;
 
         [FunctionName("HttpApiFunction")]
         public async Task<IActionResult> Run([HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = null)] HttpRequest req, ILogger log)
         {
             log.LogInformation("HttpApiFunction triggered");
 
-            string Username = req.Query["username"];
-            string Repository = req.Query["repository"];
-            string Page = req.Query["page"];
-            string Limit = req.Query["limit"];
+            string username = req.Query["username"];
+            string repository = req.Query["repository"];
+            string page1 = req.Query["page"];
+            string limit1 = req.Query["limit"];
 
-            if (!int.TryParse(Page, out var page))
+            if (!int.TryParse(page1, out var page))
                 page = 1;
 
-            if (!int.TryParse(Limit, out var limit))
+            if (!int.TryParse(limit1, out var limit))
                 limit = 10;
 
-            var results = await _service.GetMany(Repository, Username, page, limit);
+            var results = await service.GetMany(repository, username, page, limit);
 
             return new OkObjectResult(results);
         }

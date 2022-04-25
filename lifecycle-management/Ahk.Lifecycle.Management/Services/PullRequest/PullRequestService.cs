@@ -1,14 +1,16 @@
 using System;
 using System.Threading.Tasks;
+using Ahk.Lifecycle.Management.DAL;
+using Ahk.Lifecycle.Management.DAL.Entities;
 
 namespace Ahk.Lifecycle.Management
 {
     public class PullRequestService : IPullRequestService
     {
-        private readonly IRepository _repo;
+        private readonly IRepository repo;
 
-        public PullRequestService(IRepository repo) => _repo = repo;
+        public PullRequestService(IRepository repo) => this.repo = repo;
 
-        public Task PullRequest(PullRequestEvent data) => _repo.Insert(data);
+        public Task PullRequest(PullRequestEvent data) => repo.Insert(data);
     }
 }

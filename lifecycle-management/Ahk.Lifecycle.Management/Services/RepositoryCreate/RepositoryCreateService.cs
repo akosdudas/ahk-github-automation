@@ -1,13 +1,15 @@
 using System;
 using System.Threading.Tasks;
+using Ahk.Lifecycle.Management.DAL;
+using Ahk.Lifecycle.Management.DAL.Entities;
 
 namespace Ahk.Lifecycle.Management
 {
     public class RepositoryCreateService : IRepositoryCreateService
     {
-        private readonly IRepository _repo;
+        private readonly IRepository repo;
 
-        public RepositoryCreateService(IRepository repo) => _repo = repo;
-        public Task RepositoryCreate(RepositoryCreateEvent data) => _repo.Insert(data);
+        public RepositoryCreateService(IRepository repo) => this.repo = repo;
+        public Task RepositoryCreate(RepositoryCreateEvent data) => repo.Insert(data);
     }
 }
