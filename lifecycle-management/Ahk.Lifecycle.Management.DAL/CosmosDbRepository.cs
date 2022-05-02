@@ -1,10 +1,7 @@
-using System.Collections;
-using System.Linq;
 using Ahk.Lifecycle.Management.DAL.Dto;
 using Ahk.Lifecycle.Management.DAL.Entities;
 using Microsoft.Azure.Cosmos;
 using Microsoft.Azure.Cosmos.Linq;
-using Newtonsoft.Json;
 
 namespace Ahk.Lifecycle.Management.DAL
 {
@@ -35,10 +32,10 @@ namespace Ahk.Lifecycle.Management.DAL
             created = true;
         }
 
-        public async Task<ICollection<Statistics>> GetRepositories(string repository = "")
+        public async Task<IReadOnlyCollection<Statistics>> GetRepositories(string repository = "")
         {
             if (string.IsNullOrEmpty(repository))
-                return null;
+                return Array.Empty<Statistics>();
 
             await this.ensureCreated();
 
@@ -46,7 +43,7 @@ namespace Ahk.Lifecycle.Management.DAL
 
             using var iter = eventsContainer
                 .GetItemLinqQueryable<LifecycleEvent>(allowSynchronousQueryExecution: true)
-                .Where(o => o.Repository.Contains(repository))
+                .Where(o => o.Repository.StartsWith(repository, StringComparison.OrdinalIgnoreCase))
                 .ToFeedIterator();
 
             while (iter.HasMoreResults)

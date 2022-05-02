@@ -4,7 +4,7 @@ namespace Ahk.Lifecycle.Management.DAL.Dto
 {
     public class Statistics
     {
-        public Statistics(int count, string repository, ICollection<LifecycleEvent> events)
+        public Statistics(int count, string repository, IReadOnlyCollection<LifecycleEvent> events)
         {
             this.Count = count;
             this.Repository = repository;
@@ -13,6 +13,6 @@ namespace Ahk.Lifecycle.Management.DAL.Dto
 
         public int Count { get; }
         public string Repository { get; }
-        public ICollection<LifecycleEvent> Events { get; }
+        public IReadOnlyCollection<LifecycleEvent> Events { get; }
     }
 }

@@ -4,13 +4,21 @@ namespace Ahk.Lifecycle.Management.DAL.Entities
 {
     public abstract class LifecycleEvent
     {
+        protected LifecycleEvent(string id, string repository, string username, DateTime timestamp)
+        {
+            this.Id = id ?? Guid.NewGuid().ToString();
+            this.Repository = repository;
+            this.Username = username;
+            this.Timestamp = timestamp;
+        }
+
         [JsonProperty("id")]
-        public abstract string Id { get; }
-        public abstract string Repository { get; }
-        public abstract string Username { get; }
+        public string Id { get; }
+        public string Repository { get; }
+        public string Username { get; }
 
         [JsonProperty("$type")]
         public abstract string Type { get; }
-        public abstract DateTime Timestamp { get; }
+        public DateTime Timestamp { get; }
     }
 }

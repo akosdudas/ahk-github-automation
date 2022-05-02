@@ -9,18 +9,18 @@ using Ahk.Lifecycle.Management.DAL;
 
 namespace Ahk.Lifecycle.Management
 {
-    public class HttpTriggerFunction
+    public class ListEventsHttpFunction
     {
         private readonly IRepository service;
 
-        public HttpTriggerFunction(IRepository service) => this.service = service;
+        public ListEventsHttpFunction(IRepository service) => this.service = service;
 
-        [FunctionName("HttpTriggerFunction")]
+        [FunctionName("ListEventsHttpFunction")]
         public async Task<IActionResult> Run(
             [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = null)] HttpRequest req,
             ILogger log)
         {
-            log.LogInformation("HttpTriggerFunction triggered");
+            log.LogInformation("ListEventsHttpFunction triggered");
 
             string repository = req.Query["repository"];
             var results = await service.GetRepositories(repository);
