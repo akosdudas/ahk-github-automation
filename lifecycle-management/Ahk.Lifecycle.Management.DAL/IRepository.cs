@@ -6,6 +6,6 @@ namespace Ahk.Lifecycle.Management.DAL
     public interface IRepository
     {
         Task Insert<T>(T data) where T : LifecycleEvent;
-        Task<IReadOnlyCollection<Statistics>> GetRepositories(string repository = "");
+        Task<IReadOnlyCollection<Statistics>> GetRepositories(string prefix = "");
     }
 }

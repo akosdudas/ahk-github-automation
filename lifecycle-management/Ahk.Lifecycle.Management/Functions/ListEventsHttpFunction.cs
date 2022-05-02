@@ -17,13 +17,12 @@ namespace Ahk.Lifecycle.Management
 
         [FunctionName("ListEventsHttpFunction")]
         public async Task<IActionResult> Run(
-            [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = null)] HttpRequest req,
-            ILogger log)
+            [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "ListEventsHttpFunction/{*prefix}")] HttpRequest req,
+            ILogger log, string prefix)
         {
             log.LogInformation("ListEventsHttpFunction triggered");
 
-            string repository = req.Query["repository"];
-            var results = await service.GetRepositories(repository);
+            var results = await service.GetRepositories(prefix);
 
             return new OkObjectResult(results);
         }

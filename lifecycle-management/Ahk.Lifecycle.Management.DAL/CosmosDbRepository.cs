@@ -32,18 +32,15 @@ namespace Ahk.Lifecycle.Management.DAL
             created = true;
         }
 
-        public async Task<IReadOnlyCollection<Statistics>> GetRepositories(string repository = "")
+        public async Task<IReadOnlyCollection<Statistics>> GetRepositories(string prefix = "")
         {
-            if (string.IsNullOrEmpty(repository))
-                return Array.Empty<Statistics>();
-
             await this.ensureCreated();
 
             var data = new List<LifecycleEvent>();
 
             using var iter = eventsContainer
                 .GetItemLinqQueryable<LifecycleEvent>(allowSynchronousQueryExecution: true)
-                .Where(o => o.Repository.StartsWith(repository, StringComparison.OrdinalIgnoreCase))
+                .Where(o => o.Repository.StartsWith(prefix))
                 .ToFeedIterator();
 
             while (iter.HasMoreResults)
