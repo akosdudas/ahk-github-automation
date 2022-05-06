@@ -51,7 +51,7 @@ namespace Ahk.Lifecycle.Management.DAL
                     .Select(o => new Statistics(
                         repository: o.Key,
                         count: o.Count(),
-                        events: o.ToList()))
+                        events: o.OrderBy(e => e.Timestamp).ToList()))
                     .ToList();
 
             return results;
