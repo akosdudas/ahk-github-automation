@@ -34,21 +34,21 @@
 	    <RowTemplate>
 		    <MudTd DataLabel="Repository">@context.Repository</MudTd>
 		    <MudTd DataLabel="Branch">
-                @if(string.IsNullOrEmpty(getBranchName(context)))
+                @if(getBranchCreate(context) == null)
                 {
                     <MudText Color="Color.Error" Typo="Typo.body2" Class="mud-text-secondary">No new branch</MudText>
                 } else
                 {
-                    <MudText Color="Color.Success" Typo="Typo.body2" Class="mud-text-secondary">@getBranchName(context)</MudText>
+                    <MudText Color="Color.Success" Typo="Typo.body2" Class="mud-text-secondary">@getBranchCreate(context)?.Branch</MudText>
                 }
             </MudTd>
 		    <MudTd DataLabel="PullRequest">
-                @if(string.IsNullOrEmpty(getPullRequest(context)))
+                @if(getPullRequest(context) == null)
                 {
                     <MudText Color="Color.Error" Typo="Typo.body2" Class="mud-text-secondary">No Pull Request</MudText>
                 } else
                 {
-                    <MudLink Href="#" Color="Color.Info" Typo="Typo.body2" Class="mud-text-secondary">#1 (@getPullRequest(context))</MudLink>
+                    <MudLink Href="@getPullRequest(context)?.HtmlUrl" Color="Color.Info" Typo="Typo.body2" Class="mud-text-secondary">#@getPullRequest(context)?.Number (@getPullRequest(context)?.Action)</MudLink>
                 }
             </MudTd>
 		    <MudTd DataLabel="Graded">
@@ -115,14 +115,14 @@
         }
     }
 
-    private string? getBranchName(Statistics stat)
+    private LifecycleEvent? getBranchCreate(Statistics stat)
     {
-        return stat.Events.LastOrDefault(o => o.Type == "BranchCreateEvent")?.Branch;
+        return stat.Events.LastOrDefault(o => o.Type == "BranchCreateEvent");
     }
 
-    private string? getPullRequest(Statistics stat)
+    private LifecycleEvent? getPullRequest(Statistics stat)
     {
-        return stat.Events.LastOrDefault(o => o.Type == "PullRequestEvent")?.Action;
+        return stat.Events.LastOrDefault(o => o.Type == "PullRequestEvent");
     }
 
     private bool hasSetGrade(Statistics stat)

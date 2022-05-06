@@ -4,7 +4,7 @@ namespace Ahk.Lifecycle.Management.Ui.Models
 {
     public class LifecycleEvent
     {
-        public LifecycleEvent(string id, string repository, string username, string type, DateTime timestamp, string action, string branch)
+        public LifecycleEvent(string id, string repository, string username, string type, DateTime timestamp, string action, string branch, string htmlUrl, int number)
         {
             this.Id = id;
             this.Repository = repository;
@@ -13,6 +13,8 @@ namespace Ahk.Lifecycle.Management.Ui.Models
             this.Timestamp = timestamp;
             this.Action = action;
             this.Branch = branch;
+            this.HtmlUrl = htmlUrl;
+            this.Number = number;
         }
 
         [JsonPropertyName("id")]
@@ -25,5 +27,7 @@ namespace Ahk.Lifecycle.Management.Ui.Models
         public DateTime Timestamp { get; }
         public string Action { get; }
         public string Branch { get; }
+        public string HtmlUrl { get; }
+        public int Number { get; }
     }
 }
