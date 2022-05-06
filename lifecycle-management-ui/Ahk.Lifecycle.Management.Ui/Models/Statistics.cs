@@ -12,6 +12,5 @@ namespace Ahk.Lifecycle.Management.Ui.Models
         public int Count { get; }
         public string Repository { get; }
         public IReadOnlyCollection<LifecycleEvent> Events { get; }
-        public bool ShowDetails { get; set; }
     }
 }
