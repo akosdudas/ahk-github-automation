@@ -1,14 +1,14 @@
 @page "/"
 @inject HttpClient Http
-@using Ahk.Lifecycle.Management.Ui.Models
+@inject Microsoft.Extensions.Configuration.IConfiguration config
 
 <PageTitle>Lifecycle Management UI</PageTitle>
 
 <MudPaper Class="pa-4 mb-4">
-    <MudTextField Class="mb-4" @bind-Value="apiEndpoint" Label="Http endpoint to call" Variant="Variant.Outlined"></MudTextField>
+    <MudTextField Class="mb-4" @bind-Value="baseUrl" Label="Base url" Variant="Variant.Outlined"></MudTextField>
     <MudTextField Class="mb-4" @bind-Value="apiKey" Label="Api key" Variant="Variant.Outlined"></MudTextField>
     <MudTextField Class="mb-4" @bind-Value="prefix" Label="Prefix" Variant="Variant.Outlined"></MudTextField>
-    <MudButton Variant="Variant.Filled" Color="Color.Primary" Class="mt-2" OnClick="@GetStats">Search</MudButton>
+    <MudButton Variant="Variant.Filled" Color="Color.Primary" Class="mt-2" OnClick="@LoadStats">Search</MudButton>
 </MudPaper>
 
 @if (statistics == null && message == null)
@@ -17,35 +17,50 @@
 }
 @if (statistics != null)
 {
-    <MudTable Items="@statistics" Hover="true" Striped="true" Breakpoint="Breakpoint.Sm" LoadingProgressColor="Color.Info"  OnRowClick="ChangeDetailsVisibility" T="Statistics">
+    <MudTable Items="@statistics" Hover="true" Striped="true" Breakpoint="Breakpoint.Sm" LoadingProgressColor="Color.Info" Filter="new Func<Statistics,bool>(FilterFunc)" T="Statistics" Dense="true">
         <ToolBarContent>
             <MudText Typo="Typo.h6">Repositories (@statistics.Count)</MudText>
             <MudSpacer />
-            <MudTextField @bind-Value="searchString" Placeholder="Search" Adornment="Adornment.Start" AdornmentIcon="@Icons.Material.Filled.Search" IconSize="Size.Medium" Class="mt-0"></MudTextField>
+            <MudSwitch @bind-Checked="@noBranchCreate" Color="Color.Primary">No new branch</MudSwitch>
+            <MudSwitch @bind-Checked="@noPullRequest" Color="Color.Primary">No PR</MudSwitch>
+            <MudSwitch @bind-Checked="@noSetGrade" Color="Color.Primary">Not graded</MudSwitch>
         </ToolBarContent>
         <HeaderContent>
 		    <MudTh>Repository</MudTh>
-		    <MudTh>Count</MudTh>
+		    <MudTh>Branch</MudTh>
+		    <MudTh>Pull Request</MudTh>
+		    <MudTh>Graded</MudTh>
 	    </HeaderContent>
 	    <RowTemplate>
 		    <MudTd DataLabel="Repository">@context.Repository</MudTd>
-		    <MudTd DataLabel="EventCount">@context.Count</MudTd>
+		    <MudTd DataLabel="Branch">
+                @if(string.IsNullOrEmpty(getBranchName(context)))
+                {
+                    <MudText Color="Color.Error" Typo="Typo.body2" Class="mud-text-secondary">No new branch</MudText>
+                } else
+                {
+                    <MudText Color="Color.Success" Typo="Typo.body2" Class="mud-text-secondary">@getBranchName(context)</MudText>
+                }
+            </MudTd>
+		    <MudTd DataLabel="PullRequest">
+                @if(string.IsNullOrEmpty(getPullRequest(context)))
+                {
+                    <MudText Color="Color.Error" Typo="Typo.body2" Class="mud-text-secondary">No Pull Request</MudText>
+                } else
+                {
+                    <MudLink Href="#" Color="Color.Info" Typo="Typo.body2" Class="mud-text-secondary">#1 (@getPullRequest(context))</MudLink>
+                }
+            </MudTd>
+		    <MudTd DataLabel="Graded">
+                @if(hasSetGrade(context))
+                {
+                    <MudText Color="Color.Error" Typo="Typo.body2" Class="mud-text-secondary">Not graded</MudText>
+                } else
+                {
+                    <MudText Color="Color.Success" Typo="Typo.body2" Class="mud-text-secondary">Graded</MudText>
+                }
+            </MudTd>
 	    </RowTemplate>
-        <ChildRowContent>
-            @if (context.ShowDetails)
-            {
-                <MudTr>
-                    <td colspan="3">
-                        <MudCard Elevation="0">
-                            @foreach(var evnt in context.Events)
-                            {
-                                <MudText Typo="Typo.body1">@evnt.Type</MudText>
-                            }
-                        </MudCard>
-                    </td>
-                </MudTr>
-            }
-        </ChildRowContent>
         <PagerContent>
             <MudTablePager Class="pa-4" HorizontalAlignment="HorizontalAlignment.End"/>
         </PagerContent>
@@ -62,27 +77,27 @@
     private string? searchString;
     private IReadOnlyCollection<Statistics>? statistics;
     private string? message;
-    private string apiEndpoint = "";
     private string apiKey = "";
     private string prefix = "";
+    private string baseUrl = "http://localhost:7071/api";
+    private bool noSetGrade;
+    private bool noPullRequest;
+    private bool noBranchCreate;
 
     protected override void OnInitialized()
     {
         message = "Search by filling out the inputs above";
-        //apiEndpoint = "https://localhost:7044/sample-data/repository-statistics.json";
-        apiEndpoint = "http://localhost:7071/api/ListEventsHttpFunction/";
-        prefix = "test";
+        prefix = "";
     }
 
-    private async Task GetStats()
+    private async Task LoadStats()
     {
         statistics = null;
         message = null;
         Http.DefaultRequestHeaders.Remove("x-functions-key");
         Http.DefaultRequestHeaders.Add("x-functions-key", apiKey);
 
-        string url = string.Format("{0}/{1}", apiEndpoint.TrimEnd('/'), prefix.TrimStart('/'));
-
+        string url = string.Format("{0}/{1}/{2}", baseUrl.TrimEnd('/'), config["endpoint"], prefix.TrimStart('/'));
 
         try
         {
@@ -100,8 +115,33 @@
         }
     }
 
-    private void ChangeDetailsVisibility(TableRowClickEventArgs<Statistics> tableRowClickEventArgs)
+    private string? getBranchName(Statistics stat)
     {
-        tableRowClickEventArgs.Item.ShowDetails = !tableRowClickEventArgs.Item.ShowDetails;
+        return stat.Events.LastOrDefault(o => o.Type == "BranchCreateEvent")?.Branch;
+    }
+
+    private string? getPullRequest(Statistics stat)
+    {
+        return stat.Events.LastOrDefault(o => o.Type == "PullRequestEvent")?.Action;
+    }
+
+    private bool hasSetGrade(Statistics stat)
+    {
+        return stat.Events.LastOrDefault(o => o.Type == "SetGradeEvent") == null;
+    }
+
+    private bool FilterFunc(Statistics stat)
+    {
+        return
+            hasNoEventFilter(stat, noBranchCreate, "BranchCreateEvent") &&
+            hasNoEventFilter(stat, noPullRequest, "PullRequestEvent") &&
+            hasNoEventFilter(stat, noSetGrade, "SetGradeEvent");
+    }
+
+    private bool hasNoEventFilter(Statistics stat, bool isFilterOn, string type)
+    {
+        if (!isFilterOn)
+            return true;
+        return stat.Events.FirstOrDefault(o => o.Type == type) == null;
     }
 }
