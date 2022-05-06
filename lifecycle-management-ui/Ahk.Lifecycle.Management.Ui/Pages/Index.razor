@@ -1,0 +1,107 @@
+@page "/"
+@inject HttpClient Http
+@using Ahk.Lifecycle.Management.Ui.Models
+
+<PageTitle>Lifecycle Management UI</PageTitle>
+
+<MudPaper Class="pa-4 mb-4">
+    <MudTextField Class="mb-4" @bind-Value="apiEndpoint" Label="Http endpoint to call" Variant="Variant.Outlined"></MudTextField>
+    <MudTextField Class="mb-4" @bind-Value="apiKey" Label="Api key" Variant="Variant.Outlined"></MudTextField>
+    <MudTextField Class="mb-4" @bind-Value="prefix" Label="Prefix" Variant="Variant.Outlined"></MudTextField>
+    <MudButton Variant="Variant.Filled" Color="Color.Primary" Class="mt-2" OnClick="@GetStats">Search</MudButton>
+</MudPaper>
+
+@if (statistics == null && message == null)
+{
+    <MudProgressCircular Color="Color.Default" Indeterminate="true" />
+}
+@if (statistics != null)
+{
+    <MudTable Items="@statistics" Hover="true" Striped="true" Breakpoint="Breakpoint.Sm" LoadingProgressColor="Color.Info"  OnRowClick="ChangeDetailsVisibility" T="Statistics">
+        <ToolBarContent>
+            <MudText Typo="Typo.h6">Repositories (@statistics.Count)</MudText>
+            <MudSpacer />
+            <MudTextField @bind-Value="searchString" Placeholder="Search" Adornment="Adornment.Start" AdornmentIcon="@Icons.Material.Filled.Search" IconSize="Size.Medium" Class="mt-0"></MudTextField>
+        </ToolBarContent>
+        <HeaderContent>
+		    <MudTh>Repository</MudTh>
+		    <MudTh>Count</MudTh>
+	    </HeaderContent>
+	    <RowTemplate>
+		    <MudTd DataLabel="Repository">@context.Repository</MudTd>
+		    <MudTd DataLabel="EventCount">@context.Count</MudTd>
+	    </RowTemplate>
+        <ChildRowContent>
+            @if (context.ShowDetails)
+            {
+                <MudTr>
+                    <td colspan="3">
+                        <MudCard Elevation="0">
+                            @foreach(var evnt in context.Events)
+                            {
+                                <MudText Typo="Typo.body1">@evnt.Type</MudText>
+                            }
+                        </MudCard>
+                    </td>
+                </MudTr>
+            }
+        </ChildRowContent>
+        <PagerContent>
+            <MudTablePager Class="pa-4" HorizontalAlignment="HorizontalAlignment.End"/>
+        </PagerContent>
+    </MudTable>
+}
+@if(message != null)
+{
+    <MudPaper Class="pa-4 mb-4">
+        <MudText Typo="Typo.body1">@message</MudText>
+    </MudPaper>
+}
+
+@code {
+    private string? searchString;
+    private IReadOnlyCollection<Statistics>? statistics;
+    private string? message;
+    private string apiEndpoint = "";
+    private string apiKey = "";
+    private string prefix = "";
+
+    protected override void OnInitialized()
+    {
+        message = "Search by filling out the inputs above";
+        //apiEndpoint = "https://localhost:7044/sample-data/repository-statistics.json";
+        apiEndpoint = "http://localhost:7071/api/ListEventsHttpFunction/";
+        prefix = "test";
+    }
+
+    private async Task GetStats()
+    {
+        statistics = null;
+        message = null;
+        Http.DefaultRequestHeaders.Remove("x-functions-key");
+        Http.DefaultRequestHeaders.Add("x-functions-key", apiKey);
+
+        string url = string.Format("{0}/{1}", apiEndpoint.TrimEnd('/'), prefix.TrimStart('/'));
+
+
+        try
+        {
+            var response = await Http.GetAsync(url);
+            response.EnsureSuccessStatusCode();
+
+            if(response.StatusCode == System.Net.HttpStatusCode.OK)
+                statistics = await response.Content.ReadFromJsonAsync<IReadOnlyCollection<Statistics>>();
+            else
+                message = response.StatusCode.ToString();
+
+        } catch(HttpRequestException e)
+        {
+            message = e.Message;
+        }
+    }
+
+    private void ChangeDetailsVisibility(TableRowClickEventArgs<Statistics> tableRowClickEventArgs)
+    {
+        tableRowClickEventArgs.Item.ShowDetails = !tableRowClickEventArgs.Item.ShowDetails;
+    }
+}
