@@ -17,7 +17,7 @@ namespace Ahk.Lifecycle.Management
 
         [FunctionName("ListEventsHttpFunction")]
         public async Task<IActionResult> Run(
-            [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "ListEventsHttpFunction/{*prefix}")] HttpRequest req,
+            [HttpTrigger(AuthorizationLevel.Function, "get", Route = "ListEventsHttpFunction/{*prefix}")] HttpRequest req,
             ILogger log, string prefix)
         {
             log.LogInformation("ListEventsHttpFunction triggered");
