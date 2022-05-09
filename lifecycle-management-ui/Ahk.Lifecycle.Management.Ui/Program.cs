@@ -7,7 +7,10 @@ var builder = WebAssemblyHostBuilder.CreateDefault(args);
 builder.RootComponents.Add<App>("#app");
 builder.RootComponents.Add<HeadOutlet>("head::after");
 
-builder.Services.AddScoped(sp => new HttpClient());
+builder.Services.AddHttpClient("lifecycle-management", httpClient =>
+{
+    httpClient.BaseAddress = new Uri(builder.Configuration.GetSection("baseAddress").Value);
+});
 builder.Services.AddMudServices();
 
 await builder.Build().RunAsync();
