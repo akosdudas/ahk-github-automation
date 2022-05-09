@@ -1,14 +1,13 @@
 @page "/"
-@inject HttpClient Http
-@inject Microsoft.Extensions.Configuration.IConfiguration config
+@inject IHttpClientFactory httpClientFactory
 
 <PageTitle>Lifecycle Management UI</PageTitle>
 
 <MudPaper Class="pa-4 mb-4">
-    <MudTextField Class="mb-4" @bind-Value="baseUrl" Label="Base url" Variant="Variant.Outlined"></MudTextField>
+    <MudTextField Class="mb-4" @bind-Value="functionName" Label="Function name" Variant="Variant.Outlined"></MudTextField>
     <MudTextField Class="mb-4" @bind-Value="apiKey" Label="Api key" Variant="Variant.Outlined"></MudTextField>
     <MudTextField Class="mb-4" @bind-Value="prefix" Label="Prefix" Variant="Variant.Outlined"></MudTextField>
-    <MudButton Variant="Variant.Filled" Color="Color.Primary" Class="mt-2" OnClick="@LoadStats">Search</MudButton>
+    <MudButton Variant="Variant.Filled" Color="Color.Primary" Class="mt-2" OnClick="@loadStats">Search</MudButton>
 </MudPaper>
 
 @if (statistics == null && message == null)
@@ -17,7 +16,7 @@
 }
 @if (statistics != null)
 {
-    <MudTable Items="@statistics" Hover="true" Striped="true" Breakpoint="Breakpoint.Sm" LoadingProgressColor="Color.Info" Filter="new Func<Statistics,bool>(FilterFunc)" T="Statistics" Dense="true">
+    <MudTable Items="@statistics" Hover="true" Striped="true" Breakpoint="Breakpoint.Sm" LoadingProgressColor="Color.Info" Filter="new Func<Statistics,bool>(filterFunc)" T="Statistics" Dense="true">
         <ToolBarContent>
             <MudText Typo="Typo.h6">Repositories (@statistics.Count)</MudText>
             <MudSpacer />
@@ -34,25 +33,36 @@
 	    <RowTemplate>
 		    <MudTd DataLabel="Repository">@context.Repository</MudTd>
 		    <MudTd DataLabel="Branch">
-                @if(getBranchCreate(context) == null)
+                @{
+                    var bcEvent = context.Events.FirstOrDefault(e => e.Type == "BranchCreateEvent");
+                }
+                @if(bcEvent == null)
                 {
                     <MudText Color="Color.Error" Typo="Typo.body2" Class="mud-text-secondary">No new branch</MudText>
                 } else
                 {
-                    <MudText Color="Color.Success" Typo="Typo.body2" Class="mud-text-secondary">@getBranchCreate(context)?.Branch</MudText>
+                    <MudText Color="Color.Success" Typo="Typo.body2" Class="mud-text-secondary">@bcEvent.Branch</MudText>
                 }
             </MudTd>
 		    <MudTd DataLabel="PullRequest">
-                @if(getPullRequest(context) == null)
+                @{
+                    var prEvent = context.Events.FirstOrDefault(e => e.Type == "PullRequestEvent");
+                }
+                @if(prEvent == null)
                 {
                     <MudText Color="Color.Error" Typo="Typo.body2" Class="mud-text-secondary">No Pull Request</MudText>
                 } else
                 {
-                    <MudLink Href="@getPullRequest(context)?.HtmlUrl" Color="Color.Info" Typo="Typo.body2" Class="mud-text-secondary">#@getPullRequest(context)?.Number (@getPullRequest(context)?.Action)</MudLink>
+                    <MudLink Href="@prEvent.HtmlUrl" Color="Color.Info" Typo="Typo.body2" Class="mud-text-secondary">
+                        #@prEvent.Number (@prEvent.Action)
+                    </MudLink>
                 }
             </MudTd>
 		    <MudTd DataLabel="Graded">
-                @if(hasSetGrade(context))
+                @{
+                    var sgEvent = context.Events.FirstOrDefault(e => e.Type == "SetGradeEvent");
+                }
+                @if(sgEvent == null)
                 {
                     <MudText Color="Color.Error" Typo="Typo.body2" Class="mud-text-secondary">Not graded</MudText>
                 } else
@@ -71,77 +81,4 @@
     <MudPaper Class="pa-4 mb-4">
         <MudText Typo="Typo.body1">@message</MudText>
     </MudPaper>
-}
-
-@code {
-    private string? searchString;
-    private IReadOnlyCollection<Statistics>? statistics;
-    private string? message;
-    private string apiKey = "";
-    private string prefix = "";
-    private string baseUrl = "";
-    private bool noSetGrade;
-    private bool noPullRequest;
-    private bool noBranchCreate;
-
-    protected override void OnInitialized()
-    {
-        message = "Search by filling out the inputs above";
-        prefix = "";
-    }
-
-    private async Task LoadStats()
-    {
-        statistics = null;
-        message = null;
-        Http.DefaultRequestHeaders.Remove("x-functions-key");
-        Http.DefaultRequestHeaders.Add("x-functions-key", apiKey);
-
-        string url = string.Format("{0}/{1}/{2}", baseUrl.TrimEnd('/'), config["endpoint"], prefix.TrimStart('/'));
-
-        try
-        {
-            var response = await Http.GetAsync(url);
-            response.EnsureSuccessStatusCode();
-
-            if(response.StatusCode == System.Net.HttpStatusCode.OK)
-                statistics = await response.Content.ReadFromJsonAsync<IReadOnlyCollection<Statistics>>();
-            else
-                message = response.StatusCode.ToString();
-
-        } catch(HttpRequestException e)
-        {
-            message = e.Message;
-        }
-    }
-
-    private LifecycleEvent? getBranchCreate(Statistics stat)
-    {
-        return stat.Events.LastOrDefault(o => o.Type == "BranchCreateEvent");
-    }
-
-    private LifecycleEvent? getPullRequest(Statistics stat)
-    {
-        return stat.Events.LastOrDefault(o => o.Type == "PullRequestEvent");
-    }
-
-    private bool hasSetGrade(Statistics stat)
-    {
-        return stat.Events.LastOrDefault(o => o.Type == "SetGradeEvent") == null;
-    }
-
-    private bool FilterFunc(Statistics stat)
-    {
-        return
-            hasNoEventFilter(stat, noBranchCreate, "BranchCreateEvent") &&
-            hasNoEventFilter(stat, noPullRequest, "PullRequestEvent") &&
-            hasNoEventFilter(stat, noSetGrade, "SetGradeEvent");
-    }
-
-    private bool hasNoEventFilter(Statistics stat, bool isFilterOn, string type)
-    {
-        if (!isFilterOn)
-            return true;
-        return stat.Events.FirstOrDefault(o => o.Type == type) == null;
-    }
 }
