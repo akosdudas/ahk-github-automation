@@ -10,7 +10,6 @@ namespace Ahk.Lifecycle.Management.Ui.Pages
         private string? message;
         private string apiKey = "";
         private string prefix = "";
-        private string functionName = "";
         private bool noSetGrade;
         private bool noPullRequest;
         private bool noBranchCreate;
@@ -32,7 +31,7 @@ namespace Ahk.Lifecycle.Management.Ui.Pages
 
             try
             {
-                var response = await httpClient.GetAsync($"{functionName}/{prefix}");
+                var response = await httpClient.GetAsync($"ListEventsHttpFunction/{prefix}");
                 response.EnsureSuccessStatusCode();
 
                 statistics = await response.Content.ReadFromJsonAsync<IReadOnlyCollection<Statistics>>();
